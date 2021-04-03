@@ -17,6 +17,31 @@ static_assert(offsetof(struct Unit, field_0x6a) == 0x6a, "Wrong offset of field_
 static_assert(sizeof(Unit) == 0x104, "Wrong size of Unit struct");
 #pragma endregion
 
+#pragma region consts
+Unit** allUnits = (Unit**)0x00fa5ac0;
+void* fnGatherResources = (void*)0x004d5ac0;
+byte* playersIds = (byte*)0x005adb3c;
+#pragma endregion
+
+size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type) {
+    size_t res = 0;
+    for (int n = 0; n < 65535; n++) {
+        Unit* u = allUnits[n];
+        if (
+            u != NULL 
+            && u->tickAfterKill == 0 
+            && u->unit2->type == UNIT_PEASANT 
+            && u->unitAction != NULL
+            && u->unitAction->fn == fnGatherResources
+            && u->unitAction->resType == type
+            && u->owner == playersIds[playerNumber]
+        ) {
+            res++;
+        }
+    }
+    return res;
+}
+
 DWORD WINAPI MainThread(HMODULE hModule) {
     OutputDebugString(L"MainThread");
 
@@ -27,12 +52,18 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     std::cout << "This works" << std::endl;
 
     while (!GetAsyncKeyState(VK_END)) {
+        if (GetAsyncKeyState(VK_HOME)) {
+            std::cout << "==================================" << std::endl;
+            printf("Hello\n");
+            std::cout << "Peasants on food " << CountPeasantsOnRes(0, GATHER_FOOD) << std::endl;
+            std::cout << "Peasants on wood " << CountPeasantsOnRes(0, GATHER_WOOD) << std::endl;
+            std::cout << "Peasants on stone " << CountPeasantsOnRes(0, GATHER_STONE) << std::endl;
+        }
         Sleep(50);
     }
 
-    Unit** unit = (Unit**)(0x00fa5ac0);
     for (int n = 0; n < 65535; n++) {
-        Unit* u = unit[n];
+        Unit* u = allUnits[n];
         if (u != NULL && /*u->tickAfterKill == 0 &&*/ u->unit2->type == UNIT_PEASANT && u->unitAction == NULL) {
             std::cout << "Unit is peasant u->tickAfterKill " << u->tickAfterKill << " and his id: " << u->id << std::endl;
         }

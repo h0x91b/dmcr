@@ -19,6 +19,12 @@ typedef enum ACTION : unsigned char {
     ACTION_SELECT_FREE_MINES=114
 } ACTION;
 
+typedef enum GATHER_RES_TYPE : unsigned char {
+    GATHER_FOOD=3,
+    GATHER_STONE=2,
+    GATHER_WOOD=0
+} GATHER_RES_TYPE;
+
 typedef struct S1_AI S1_AI, *PS1_AI;
 
 struct S1_AI {
@@ -72,7 +78,7 @@ struct UnitAction {
     undefined field_0x11;
     undefined field_0x12;
     int targetObj;
-    byte resType;
+    enum GATHER_RES_TYPE resType;
 };
 
 struct Unit {
@@ -188,7 +194,7 @@ struct Unit {
     undefined field_0x8f;
     undefined field_0x90;
     undefined field_0x91;
-    byte field_0x92;
+    byte owner;
     undefined field_0x93;
     undefined field_0x94;
     undefined field_0x95;
