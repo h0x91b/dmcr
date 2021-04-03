@@ -64,3 +64,4 @@
 
 
 *.h	text eol=crlf
+*.gzf   binary

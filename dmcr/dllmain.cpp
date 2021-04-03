@@ -21,6 +21,7 @@ static_assert(sizeof(Unit) == 0x104, "Wrong size of Unit struct");
 Unit** allUnits = (Unit**)0x00fa5ac0;
 void* fnGatherResources = (void*)0x004d5ac0;
 byte* playersIds = (byte*)0x005adb3c;
+int* resPeasants = (int*)0x02717080;
 #pragma endregion
 
 size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type) {
@@ -39,6 +40,17 @@ size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type) {
             res++;
         }
     }
+    switch (type)
+    {
+    case GATHER_FOOD:
+        resPeasants[3] = res; break;
+    case GATHER_WOOD:
+        resPeasants[0] = res; break;
+    case GATHER_STONE:
+        resPeasants[2] = res; break;
+    default:
+        break;
+    }
     return res;
 }
 
@@ -52,14 +64,13 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     std::cout << "This works" << std::endl;
 
     while (!GetAsyncKeyState(VK_END)) {
-        if (GetAsyncKeyState(VK_HOME)) {
+//        if (GetAsyncKeyState(VK_HOME)) {
             std::cout << "==================================" << std::endl;
-            printf("Hello\n");
             std::cout << "Peasants on food " << CountPeasantsOnRes(0, GATHER_FOOD) << std::endl;
             std::cout << "Peasants on wood " << CountPeasantsOnRes(0, GATHER_WOOD) << std::endl;
             std::cout << "Peasants on stone " << CountPeasantsOnRes(0, GATHER_STONE) << std::endl;
-        }
-        Sleep(50);
+  //      }
+        Sleep(250);
     }
 
     for (int n = 0; n < 65535; n++) {
