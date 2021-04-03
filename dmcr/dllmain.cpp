@@ -33,7 +33,7 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     Unit** unit = (Unit**)(0x00fa5ac0);
     for (int n = 0; n < 65535; n++) {
         Unit* u = unit[n];
-        if (u != NULL && /*u->tickAfterKill == 0 &&*/ u->unit2->type == UNIT_PEASANT && u->action == NULL) {
+        if (u != NULL && /*u->tickAfterKill == 0 &&*/ u->unit2->type == UNIT_PEASANT && u->unitAction == NULL) {
             std::cout << "Unit is peasant u->tickAfterKill " << u->tickAfterKill << " and his id: " << u->id << std::endl;
         }
         else if (u != NULL /* && u->tickAfterKill == 0*/ && u->unit2->type != UNIT_PEASANT) {

@@ -70513,38 +70513,28 @@ struct UnitAction {
     undefined field_0x4;
     undefined field_0x5;
     undefined field_0x6;
-    undefined field_0x7;
-    undefined field_0x8;
-    undefined field_0x9;
-    undefined field_0xa;
+    void * fn;
     struct Unit * field_0xb;
-    int field_0xf;
-    int field_0x13;
-    byte field_0x17;
+    short field_0xf;
+    undefined field_0x11;
+    undefined field_0x12;
+    int targetObj;
+    byte resType;
 };
 
 struct Unit {
     int field_0x0;
     int field_0x4;
     struct Unit2 * unit2;
-    undefined field_0xc;
-    undefined field_0xd;
-    undefined field_0xe;
-    undefined field_0xf;
-    undefined field_0x10;
-    undefined field_0x11;
-    undefined field_0x12;
-    undefined field_0x13;
+    undefined * field_0xc;
+    undefined * field_0x10;
     ushort id; /* Created by retype action */
     undefined field_0x16;
-    undefined field_0x17;
-    undefined field_0x18;
+    undefined2 field_0x17;
     undefined field_0x19;
     undefined field_0x1a;
-    undefined field_0x1b;
-    undefined field_0x1c;
-    undefined field_0x1d;
-    undefined field_0x1e;
+    undefined2 field_0x1b;
+    undefined2 field_0x1d;
     undefined field_0x1f;
     undefined field_0x20;
     undefined field_0x21;
@@ -70627,7 +70617,7 @@ struct Unit {
     undefined field_0x77;
     undefined field_0x78;
     int field_0x79;
-    int field_0x7d;
+    undefined * field_0x7d;
     undefined field_0x81;
     undefined field_0x82;
     undefined field_0x83;
@@ -70721,7 +70711,7 @@ struct Unit {
     undefined field_0xf1;
     undefined field_0xf2;
     undefined field_0xf3;
-    struct UnitAction * action;
+    struct UnitAction * unitAction;
     undefined field_0xf8;
     undefined field_0xf9;
     undefined field_0xfa;
