@@ -28,6 +28,8 @@ byte* currentPlayerId = (byte*)0x010c1598;
 int* resPeasants = (int*)0x02717080;
 int* goldPeasants = (int*)0x026d1544;
 bool* GameInProgress = (bool*)0x005e89d0;
+HWND* hWindow = (HWND*)0x007ffee4;
+void* SmallWhiteFont = (void*)0x0081d7b4;
 #pragma endregion
 
 #pragma region funcs
@@ -35,9 +37,24 @@ bool* GameInProgress = (bool*)0x005e89d0;
 typedef void(__cdecl* ShowString) (int , int , char*, void*);
 ShowString pShowString = (ShowString)0x00463770;
 
-void* SmallWhiteFont = (void*)0x0081d7b4;
+typedef void(__fastcall* RefreshView) (void*, DWORD);
+RefreshView RealRefreshView = (RefreshView)0x0045d770;
 
+size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type);
 #pragma endregion
+
+void __fastcall _RefreshView(void* _this, DWORD edx) {
+    // printf("_RefreshView\n");
+    if (*GameInProgress) {
+        pShowString(200, 300, (char*)"Hello world", SmallWhiteFont);
+
+        CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_FOOD);
+        CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_WOOD);
+        CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_STONE);
+    }
+    RealRefreshView(_this, edx);
+}
+
 size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type) {
     size_t res = 0;
     for (int n = 0; n < 65535; n++) {
@@ -90,17 +107,17 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-
-    // DetourAttach(&(PVOID&)RealFlip, _Flip);
+    auto csemu = LoadLibrary(L"csemu.dll"); // 0318c 3177
+    DetourAttach(&(PVOID&)RealRefreshView, _RefreshView);
 
     DetourTransactionCommit();
 
     while (!GetAsyncKeyState(VK_END)) {
         if (*GameInProgress) {
-            std::cout << "==================================" << std::endl;
-            std::cout << "Peasants on food " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_FOOD) << std::endl;
-            std::cout << "Peasants on wood " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_WOOD) << std::endl;
-            std::cout << "Peasants on stone " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_STONE) << std::endl;
+            //std::cout << "==================================" << std::endl;
+            //std::cout << "Peasants on food " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_FOOD) << std::endl;
+            //std::cout << "Peasants on wood " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_WOOD) << std::endl;
+            //std::cout << "Peasants on stone " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_STONE) << std::endl;
         }
         Sleep(250);
     }
@@ -121,7 +138,8 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    // DetourDetach(&(PVOID&)RealFlip, _Flip);
+    // DetourDetach(&(PVOID&)RealFlip, _RefreshView);
+    DetourDetach(&(PVOID&)RealRefreshView, _RefreshView);
 
     DetourTransactionCommit();
 
