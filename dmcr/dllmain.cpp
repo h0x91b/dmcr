@@ -1,7 +1,7 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
 //#include <stdio.h>
 #include <iostream>
+#include "utils.h"
 
 #pragma pack(push)  /* push current alignment to stack */
 #pragma pack(1)     /* set alignment to 1 byte boundary */
@@ -21,9 +21,20 @@ static_assert(sizeof(Unit) == 0x104, "Wrong size of Unit struct");
 Unit** allUnits = (Unit**)0x00fa5ac0;
 void* fnGatherResources = (void*)0x004d5ac0;
 byte* playersIds = (byte*)0x005adb3c;
+byte* currentPlayerId = (byte*)0x010c1598;
 int* resPeasants = (int*)0x02717080;
+int* goldPeasants = (int*)0x026d1544;
+bool* GameInProgress = (bool*)0x005e89d0;
 #pragma endregion
 
+#pragma region funcs
+// 00463770 void __cdecl ShowString(int x, int y, char* text, RLCFont* font)
+typedef void(__cdecl* ShowString) (int , int , char*, void*);
+ShowString pShowString = (ShowString)0x00463770;
+
+void* SmallWhiteFont = (void*)0x0081d7b4;
+
+#pragma endregion
 size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type) {
     size_t res = 0;
     for (int n = 0; n < 65535; n++) {
@@ -51,6 +62,10 @@ size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type) {
     default:
         break;
     }
+    resPeasants[1] = *goldPeasants; // gold
+    resPeasants[5] = *(goldPeasants + 8); // +8 coal
+    resPeasants[4] = *(goldPeasants + 16); // +16 iron
+
     return res;
 }
 
@@ -63,25 +78,30 @@ DWORD WINAPI MainThread(HMODULE hModule) {
 
     std::cout << "This works" << std::endl;
 
+    while (!GetAsyncKeyState(VK_HOME)) {
+        Sleep(50);
+    }
+
+
     while (!GetAsyncKeyState(VK_END)) {
-//        if (GetAsyncKeyState(VK_HOME)) {
+        if (*GameInProgress) {
             std::cout << "==================================" << std::endl;
-            std::cout << "Peasants on food " << CountPeasantsOnRes(0, GATHER_FOOD) << std::endl;
-            std::cout << "Peasants on wood " << CountPeasantsOnRes(0, GATHER_WOOD) << std::endl;
-            std::cout << "Peasants on stone " << CountPeasantsOnRes(0, GATHER_STONE) << std::endl;
-  //      }
+            std::cout << "Peasants on food " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_FOOD) << std::endl;
+            std::cout << "Peasants on wood " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_WOOD) << std::endl;
+            std::cout << "Peasants on stone " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_STONE) << std::endl;
+        }
         Sleep(250);
     }
 
-    for (int n = 0; n < 65535; n++) {
-        Unit* u = allUnits[n];
-        if (u != NULL && /*u->tickAfterKill == 0 &&*/ u->unit2->type == UNIT_PEASANT && u->unitAction == NULL) {
-            std::cout << "Unit is peasant u->tickAfterKill " << u->tickAfterKill << " and his id: " << u->id << std::endl;
-        }
-        else if (u != NULL /* && u->tickAfterKill == 0*/ && u->unit2->type != UNIT_PEASANT) {
-            std::cout << "Unit type is different "<< (int)u->unit2->type <<" and his id: " << u->id << std::endl;
-        }
-    }
+    //for (int n = 0; n < 65535; n++) {
+    //    Unit* u = allUnits[n];
+    //    if (u != NULL && /*u->tickAfterKill == 0 &&*/ u->unit2->type == UNIT_PEASANT && u->unitAction == NULL) {
+    //        std::cout << "Unit is peasant u->tickAfterKill " << u->tickAfterKill << " and his id: " << u->id << std::endl;
+    //    }
+    //    else if (u != NULL /* && u->tickAfterKill == 0*/ && u->unit2->type != UNIT_PEASANT) {
+    //        std::cout << "Unit type is different "<< (int)u->unit2->type <<" and his id: " << u->id << std::endl;
+    //    }
+    //}
 
     OutputDebugString(L"Dettach and shutdown everything\r\n");
     std::cout << "Dettach and shutdown everything" << std::endl;
