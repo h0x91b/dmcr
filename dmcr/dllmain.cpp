@@ -3,6 +3,9 @@
 #include <iostream>
 #include "utils.h"
 
+#include <detours.h>
+#pragma comment(lib, "detours.lib")
+
 #pragma pack(push)  /* push current alignment to stack */
 #pragma pack(1)     /* set alignment to 1 byte boundary */
 #include "dmcr.exe.h"
@@ -82,6 +85,15 @@ DWORD WINAPI MainThread(HMODULE hModule) {
         Sleep(50);
     }
 
+    DetourRestoreAfterWith();
+
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+
+    // DetourAttach(&(PVOID&)RealFlip, _Flip);
+
+    DetourTransactionCommit();
 
     while (!GetAsyncKeyState(VK_END)) {
         if (*GameInProgress) {
@@ -105,6 +117,14 @@ DWORD WINAPI MainThread(HMODULE hModule) {
 
     OutputDebugString(L"Dettach and shutdown everything\r\n");
     std::cout << "Dettach and shutdown everything" << std::endl;
+
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    // DetourDetach(&(PVOID&)RealFlip, _Flip);
+
+    DetourTransactionCommit();
+
     FreeLibraryAndExitThread(hModule, 0);
 }
 
