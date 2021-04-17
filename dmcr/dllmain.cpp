@@ -30,6 +30,11 @@ int* goldPeasants = (int*)0x026d1544;
 bool* GameInProgress = (bool*)0x005e89d0;
 HWND* hWindow = (HWND*)0x007ffee4;
 void* SmallWhiteFont = (void*)0x0081d7b4;
+void* BlackFont = (void*)0x0081d9e0;
+void* BigBlackFont = (void*)0x0081d964;
+void* BigRedFont = (void*)0x008005ec;
+int* population = (int*)0x010dda28;
+int* maxPopulation = (int*)0x00ff13b6;
 #pragma endregion
 
 #pragma region funcs
@@ -46,7 +51,12 @@ size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type);
 void __fastcall _RefreshView(void* _this, DWORD edx) {
     // printf("_RefreshView\n");
     if (*GameInProgress) {
-        pShowString(200, 300, (char*)"Hello world", SmallWhiteFont);
+        char buf[256];
+        sprintf_s(buf, "Population %d / %d", *population, *maxPopulation);
+        pShowString(20, 80, buf, SmallWhiteFont);
+
+        //pShowString(200, 300, (char*)"Hello world", SmallWhiteFont);
+        //pShowString(200, 330, (char*)"Hello привет", BigRedFont);
 
         CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_FOOD);
         CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_WOOD);
