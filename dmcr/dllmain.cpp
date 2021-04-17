@@ -49,6 +49,7 @@ RefreshView RealRefreshView = (RefreshView)0x0045d770;
 size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type);
 size_t CountOfFreePeasants(int playerNumber);
 size_t CountOfWarriors(int playerNumber);
+size_t CountOfFreeMines(int playerNumber);
 #pragma endregion
 
 void __fastcall _RefreshView(void* _this, DWORD edx) {
@@ -62,6 +63,9 @@ void __fastcall _RefreshView(void* _this, DWORD edx) {
         pShowString(20, y += vSpacing, buf, SmallWhiteFont);
         
         sprintf_s(buf, "Лодыри: %d", CountOfFreePeasants((*currentPlayerId) ^ 0x85));
+        pShowString(20, y += vSpacing, buf, SmallWhiteFont);
+        
+        sprintf_s(buf, "Неполные шахты: %d", CountOfFreeMines((*currentPlayerId) ^ 0x85));
         pShowString(20, y += vSpacing, buf, SmallWhiteFont);
         
         sprintf_s(buf, "Воины: %d", CountOfWarriors((*currentPlayerId) ^ 0x85));
@@ -99,10 +103,6 @@ size_t CountOfWarriors(int playerNumber) {
     size_t res = 0;
     for (int n = 0; n < 65535; n++) {
         Unit* u = allUnits[n];
-        //if ((((u != (Unit*)0x0) && (u->tickAfterKill == 0)) && ((u->mask2 & 0x10) == 0)) &&
-        //    (((u->unit2->field_0xa1f & 2) == 0 && (u->field_0x52 == '\0')))) {
-        //    cnt = cnt + 1;
-        //}
         if (
             u != NULL
             && u->tickAfterKill == 0
@@ -110,7 +110,28 @@ size_t CountOfWarriors(int playerNumber) {
             && ((u->mask2 & 0x10) == 0)
             && (u->unit2->field_0xa1f & 2) == 0
             && (u->field_0x52 == '\0')
-            ) {
+        ) {
+            res++;
+        }
+    }
+    return res;
+}
+
+size_t CountOfFreeMines(int playerNumber) {
+    size_t res = 0;
+    for (int n = 0; n < 65535; n++) {
+        Unit* u = allUnits[n];
+        //(((u->mask3 & 1) != 0 &&
+        //    ((uint)u->peasantsIn <
+        //        (uint)(ushort)u->building->bs1->baseCapacity + (uint)u->upgradeCapacity))))
+        if (
+            u != NULL
+            && u->tickAfterKill == 0
+            && u->owner == playersIds[playerNumber]
+            && u->unit2->type == UNIT_MINE
+            && (u->mask3 & 1) != 0
+            && u->peasantsIn < u->building->bs1->baseCapacity + u->upgradeCapacity
+        ) {
             res++;
         }
     }

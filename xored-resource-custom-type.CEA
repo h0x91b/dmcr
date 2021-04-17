@@ -1,0 +1,91 @@
+alloc(ConvertRoutine,1024)
+alloc(ConvertBackRoutine,1024)
+alloc(TypeName,256)
+alloc(ByteSize,4)
+alloc(UsesFloat,1)
+alloc(CallMethod,1)
+
+TypeName:
+db 'Xored resources',0
+
+ByteSize:
+dd 4
+
+UsesFloat:
+db 0 //Change to 1 if this custom type should be treated as a float
+
+CallMethod:
+db 1 //Remove or change to 0 for legacy call mechanism
+
+//The convert routine should hold a routine that converts the data to an integer (in eax)
+//function declared as: cdecl int ConvertRoutine(unsigned char *input, PTR_UINT address);
+//Note: Keep in mind that this routine can be called by multiple threads at the same time.
+ConvertRoutine:
+//jmp dllname.functionname
+[64-bit]
+//or manual:
+//parameters: (64-bit)
+//rcx=address of input
+//rdx=address
+mov eax,[rcx] //eax now contains the bytes 'input' pointed to
+xor eax, 00020D7D
+
+ret
+[/64-bit]
+
+[32-bit]
+//jmp dllname.functionname
+//or manual:
+//parameters: (32-bit)
+push ebp
+mov ebp,esp
+//[ebp+8]=address of input
+//[ebp+c]=address
+//example:
+mov eax,[ebp+8] //place the address that contains the bytes into eax
+mov eax,[eax] //place the bytes into eax so it's handled as a normal 4 byte value
+
+xor eax, 00020D7D
+
+pop ebp
+ret
+[/32-bit]
+
+//The convert back routine should hold a routine that converts the given integer back to a row of bytes (e.g when the user wats to write a new value)
+//function declared as: cdecl void ConvertBackRoutine(int i, PTR_UINT address, unsigned char *output);
+ConvertBackRoutine:
+//jmp dllname.functionname
+//or manual:
+[64-bit]
+//parameters: (64-bit)
+//ecx=input
+//rdx=address
+//r8=address of output
+//example:
+xor ecx, 00020D7D
+mov [r8],ecx //place the integer at the 4 bytes pointed to by r8
+
+ret
+[/64-bit]
+
+[32-bit]
+//parameters: (32-bit)
+push ebp
+mov ebp,esp
+//[ebp+8]=input
+//[ebp+c]=address
+//[ebp+10]=address of output
+//example:
+push eax
+push ebx
+mov eax,[ebp+8] //load the value into eax
+mov ebx,[ebp+10] //load the output address into ebx
+xor eax, 00020D7D
+mov [ebx],eax //write the value into the address
+pop ebx
+pop eax
+
+pop ebp
+ret
+[/32-bit]
+
