@@ -33,7 +33,7 @@ void* SmallWhiteFont = (void*)0x0081d7b4;
 void* BlackFont = (void*)0x0081d9e0;
 void* BigBlackFont = (void*)0x0081d964;
 void* BigRedFont = (void*)0x008005ec;
-int* population = (int*)0x010dda28;
+int* population = (int*)0x00ff13b2;
 int* maxPopulation = (int*)0x00ff13b6;
 #pragma endregion
 
@@ -46,6 +46,7 @@ typedef void(__fastcall* RefreshView) (void*, DWORD);
 RefreshView RealRefreshView = (RefreshView)0x0045d770;
 
 size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type);
+size_t CountOfFreePeasants(int playerNumber);
 #pragma endregion
 
 void __fastcall _RefreshView(void* _this, DWORD edx) {
@@ -54,6 +55,8 @@ void __fastcall _RefreshView(void* _this, DWORD edx) {
         char buf[256];
         sprintf_s(buf, "Population %d / %d", *population, *maxPopulation);
         pShowString(20, 80, buf, SmallWhiteFont);
+        sprintf_s(buf, "Free peasants: %d", CountOfFreePeasants((*currentPlayerId) ^ 0x85));
+        pShowString(20, 90, buf, SmallWhiteFont);
 
         //pShowString(200, 300, (char*)"Hello world", SmallWhiteFont);
         //pShowString(200, 330, (char*)"Hello привет", BigRedFont);
@@ -63,6 +66,23 @@ void __fastcall _RefreshView(void* _this, DWORD edx) {
         CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_STONE);
     }
     RealRefreshView(_this, edx);
+}
+
+size_t CountOfFreePeasants(int playerNumber) {
+    size_t res = 0;
+    for (int n = 0; n < 65535; n++) {
+        Unit* u = allUnits[n];
+        if (
+            u != NULL
+            && u->tickAfterKill == 0
+            && u->unit2->type == UNIT_PEASANT
+            && u->unitAction == NULL
+            && u->owner == playersIds[playerNumber]
+            ) {
+            res++;
+        }
+    }
+    return res;
 }
 
 size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type) {
