@@ -23,6 +23,7 @@ static_assert(sizeof(Unit) == 0x104, "Wrong size of Unit struct");
 #pragma region consts
 Unit** allUnits = (Unit**)0x00fa5ac0;
 void* fnGatherResources = (void*)0x004d5ac0;
+void* fnPeasantIdleAnimation = (void*)0x004accb0;
 byte* playersIds = (byte*)0x005adb3c;
 byte* currentPlayerId = (byte*)0x010c1598;
 int* resPeasants = (int*)0x02717080;
@@ -47,16 +48,24 @@ RefreshView RealRefreshView = (RefreshView)0x0045d770;
 
 size_t CountPeasantsOnRes(int playerNumber, GATHER_RES_TYPE type);
 size_t CountOfFreePeasants(int playerNumber);
+size_t CountOfWarriors(int playerNumber);
 #pragma endregion
 
 void __fastcall _RefreshView(void* _this, DWORD edx) {
     // printf("_RefreshView\n");
     if (*GameInProgress) {
         char buf[256];
-        sprintf_s(buf, "Population %d / %d", *population, *maxPopulation);
-        pShowString(20, 80, buf, SmallWhiteFont);
-        sprintf_s(buf, "Free peasants: %d", CountOfFreePeasants((*currentPlayerId) ^ 0x85));
-        pShowString(20, 90, buf, SmallWhiteFont);
+        int y = 80;
+        int vSpacing = 12;
+
+        sprintf_s(buf, "Население %d / %d", *population, *maxPopulation);
+        pShowString(20, y += vSpacing, buf, SmallWhiteFont);
+        
+        sprintf_s(buf, "Лодыри: %d", CountOfFreePeasants((*currentPlayerId) ^ 0x85));
+        pShowString(20, y += vSpacing, buf, SmallWhiteFont);
+        
+        sprintf_s(buf, "Воины: %d", CountOfWarriors((*currentPlayerId) ^ 0x85));
+        pShowString(20, y += vSpacing, buf, SmallWhiteFont);
 
         //pShowString(200, 300, (char*)"Hello world", SmallWhiteFont);
         //pShowString(200, 330, (char*)"Hello привет", BigRedFont);
@@ -76,8 +85,31 @@ size_t CountOfFreePeasants(int playerNumber) {
             u != NULL
             && u->tickAfterKill == 0
             && u->unit2->type == UNIT_PEASANT
-            && u->unitAction == NULL
+            && (
+                u->unitAction == NULL || u->unitAction->fn == fnPeasantIdleAnimation
+            ) && u->owner == playersIds[playerNumber]
+        ) {
+            res++;
+        }
+    }
+    return res;
+}
+
+size_t CountOfWarriors(int playerNumber) {
+    size_t res = 0;
+    for (int n = 0; n < 65535; n++) {
+        Unit* u = allUnits[n];
+        //if ((((u != (Unit*)0x0) && (u->tickAfterKill == 0)) && ((u->mask2 & 0x10) == 0)) &&
+        //    (((u->unit2->field_0xa1f & 2) == 0 && (u->field_0x52 == '\0')))) {
+        //    cnt = cnt + 1;
+        //}
+        if (
+            u != NULL
+            && u->tickAfterKill == 0
             && u->owner == playersIds[playerNumber]
+            && ((u->mask2 & 0x10) == 0)
+            && (u->unit2->field_0xa1f & 2) == 0
+            && (u->field_0x52 == '\0')
             ) {
             res++;
         }
@@ -126,7 +158,7 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     FILE* fDummy;
     freopen_s(&fDummy, "CONOUT$", "w", stdout);
 
-    std::cout << "This works" << std::endl;
+    std::cout << "Console window activated, press HOME to activate detour" << std::endl;
 
     while (!GetAsyncKeyState(VK_HOME)) {
         Sleep(50);
