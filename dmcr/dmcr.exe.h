@@ -12,11 +12,11 @@ typedef unsigned int    undefined4;
 typedef unsigned long long    undefined8;
 typedef unsigned short    ushort;
 typedef unsigned short    word;
-
 typedef enum ACTION : unsigned char {
     ACTION_SELECT_FREE_PEASANTS=113,
     ACTION_CTRL_S=201,
-    ACTION_SELECT_FREE_MINES=114
+    ACTION_SELECT_FREE_MINES=114,
+    ACTION_ALTTAB_DEFEAT=199
 } ACTION;
 
 typedef enum GATHER_RES_TYPE : unsigned char {
@@ -24,6 +24,12 @@ typedef enum GATHER_RES_TYPE : unsigned char {
     GATHER_STONE=2,
     GATHER_WOOD=0
 } GATHER_RES_TYPE;
+
+typedef struct MINE_S1 MINE_S1, *PMINE_S1;
+
+struct MINE_S1 {
+    undefined4 f0[32];
+};
 
 typedef struct S1_AI S1_AI, *PS1_AI;
 
@@ -139,7 +145,7 @@ struct Unit {
     undefined field_0x4f;
     undefined field_0x50;
     undefined field_0x51;
-    undefined field_0x52;
+    undefined1 field_0x52;
     byte field_0x53;
     short field_0x54;
     ushort tickAfterKill; /* Created by retype action */
@@ -2874,7 +2880,7 @@ struct Unit2 {
     undefined field_0xa1c;
     undefined field_0xa1d;
     undefined field_0xa1e;
-    undefined field_0xa1f;
+    byte field_0xa1f;
     undefined field_0xa20;
     undefined field_0xa21;
     undefined field_0xa22;
