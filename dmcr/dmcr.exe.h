@@ -24,10 +24,7 @@ typedef struct Building Building, *PBuilding;
 typedef struct BuildingS1 BuildingS1, *PBuildingS1;
 
 struct Building {
-    undefined field_0x0;
-    undefined field_0x1;
-    undefined field_0x2;
-    undefined field_0x3;
+    void * field_0x0;
     undefined field_0x4;
     undefined field_0x5;
     undefined field_0x6;
@@ -408,18 +405,18 @@ struct Unit {
     undefined field_0x1a;
     undefined2 field_0x1b;
     undefined2 field_0x1d;
-    undefined field_0x1f;
+    undefined1 unitType; /* Created by retype action */
     undefined field_0x20;
     undefined field_0x21;
     byte isSelectedRect;
     undefined field_0x23;
     undefined field_0x24;
-    byte mask3;
+    byte field_0x25;
     byte mask1;
     byte mask2;
     undefined field_0x28;
     byte field_0x29;
-    undefined field_0x2a;
+    byte field_0x2a;
     undefined field_0x2b;
     undefined field_0x2c;
     undefined field_0x2d;
@@ -479,16 +476,13 @@ struct Unit {
     undefined field_0x6b;
     undefined field_0x6c;
     undefined field_0x6d;
-    undefined field_0x6e;
-    undefined field_0x6f;
+    undefined2 field_0x6e;
     undefined field_0x70;
     short field_0x71;
     undefined field_0x73;
     undefined field_0x74;
-    undefined field_0x75;
-    undefined field_0x76;
-    undefined field_0x77;
-    undefined field_0x78;
+    word health;
+    word maxHealth;
     int field_0x79;
     undefined * field_0x7d;
     undefined field_0x81;
@@ -518,10 +512,8 @@ struct Unit {
     byte field_0x99;
     byte field_0x9a;
     ushort someUnitId;
-    undefined field_0x9d;
-    undefined field_0x9e;
-    undefined field_0x9f;
-    undefined field_0xa0;
+    undefined2 field_0x9d;
+    undefined2 field_0x9f;
     undefined field_0xa1;
     ushort upgradeCapacity;
     undefined field_0xa4;
@@ -603,14 +595,8 @@ struct Unit2 {
     undefined field_0x5;
     undefined field_0x6;
     undefined field_0x7;
-    undefined field_0x8;
-    undefined field_0x9;
-    undefined field_0xa;
-    undefined field_0xb;
-    undefined field_0xc;
-    undefined field_0xd;
-    undefined field_0xe;
-    undefined field_0xf;
+    undefined4 x; /* Created by retype action */
+    undefined4 y; /* Created by retype action */
     undefined field_0x10;
     undefined field_0x11;
     undefined field_0x12;
@@ -7741,4 +7727,12 @@ struct Unit2 {
     undefined field_0x1be7;
     enum UNIT_TYPE type;
 };
+
+typedef enum UNIT_TYPE4 {
+    UNIT_TYPE_NONE=4294967295,
+    UNIT_TYPE_MUSHKEETER=3,
+    UNIT_TYPE_PEASANT=0,
+    UNIT_TYPE_PIKEMAN=1,
+    UNIT_TYPE_TOWN_HALL=19
+} UNIT_TYPE4;
 

@@ -36,6 +36,7 @@ void* BigBlackFont = (void*)0x0081d964;
 void* BigRedFont = (void*)0x008005ec;
 int* population = (int*)0x00ff13b2;
 int* maxPopulation = (int*)0x00ff13b6;
+bool zombee = false;
 #pragma endregion
 
 #pragma region funcs
@@ -95,6 +96,19 @@ size_t CountOfFreePeasants(int playerNumber) {
         ) {
             res++;
         }
+        else if (
+            zombee 
+            && u != NULL 
+            && u->tickAfterKill > 250
+            && u->owner == playersIds[playerNumber]
+        ) {
+            u->tickAfterKill = 0;
+            u->maxHealth *= 2;
+            if (u->maxHealth >= 32000) {
+                u->maxHealth = 32000;
+            }
+            u->health = u->maxHealth;
+        }
     }
     return res;
 }
@@ -129,7 +143,6 @@ size_t CountOfFreeMines(int playerNumber) {
             && u->tickAfterKill == 0
             && u->owner == playersIds[playerNumber]
             && u->unit2->type == UNIT_MINE
-            && (u->mask3 & 1) != 0
             && u->peasantsIn < u->building->bs1->baseCapacity + u->upgradeCapacity
         ) {
             res++;
@@ -201,6 +214,15 @@ DWORD WINAPI MainThread(HMODULE hModule) {
             //std::cout << "Peasants on food " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_FOOD) << std::endl;
             //std::cout << "Peasants on wood " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_WOOD) << std::endl;
             //std::cout << "Peasants on stone " << CountPeasantsOnRes((*currentPlayerId) ^ 0x85, GATHER_STONE) << std::endl;
+
+            if (GetAsyncKeyState(VK_PRIOR)) {
+                zombee = true;
+                printf("Zombee on!!!\n");
+            }
+            else if (GetAsyncKeyState(VK_NEXT)) {
+                zombee = false;
+                printf("Zombee off!!!\n");
+            }
         }
         Sleep(250);
     }
